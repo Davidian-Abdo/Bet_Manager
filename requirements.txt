@@ -1,0 +1,21 @@
+# Backend dependencies
+fastapi==0.111.0
+uvicorn[standard]==0.23.0
+SQLAlchemy==2.1.0
+psycopg2-binary==2.9.9
+python-dotenv==1.0.0
+pydantic==2.5.1
+alembic==1.12.0
+requests==2.32.0
+websockets==11.0.3
+python-multipart==0.0.6
+
+# Frontend dependencies
+streamlit==1.30.0
+pandas==2.1.2
+numpy==1.26.5
+plotly==5.17.0
+requests==2.32.0
+
+# Optional: DWG / CAD collaboration (placeholder)
+pyautocad==0.2.0
