@@ -1,0 +1,31 @@
+/* frontend/theme/layout.css */
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.stButton>button {
+  background-color: #2563eb;
+  color: white;
+  border-radius: 8px;
+}
+
+.stSidebar {
+  background-color: #ffffff;
+  padding: 1rem;
+  border-right: 1px solid #e5e7eb;
+}
+
+.card {
+  background-color: #ffffff;
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.progress-bar {
+  height: 12px;
+  border-radius: 6px;
+}

@@ -1,0 +1,19 @@
+# docker/Dockerfile.frontend
+FROM node:20-bullseye
+
+# Set working directory
+WORKDIR /app
+
+# Install frontend dependencies
+COPY frontend/package.json .
+COPY frontend/package-lock.json .
+RUN npm install
+
+# Copy frontend code
+COPY frontend/ .
+
+# Expose Streamlit port (default 8501)
+EXPOSE 8501
+
+# Start Streamlit
+CMD ["streamlit", "run", "frontend/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
