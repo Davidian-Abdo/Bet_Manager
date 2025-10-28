@@ -1,6 +1,7 @@
 import streamlit as st
-import requests
-from frontend.utils.config import API_BASE_URL
+from frontend.utils.api_client import APIClient
+
+api = APIClient(base_url="http://localhost:8000/api")
 
 def show_login():
     st.title("BET Manager Login")
@@ -9,12 +10,10 @@ def show_login():
     password = st.text_input("Password", type="password")
 
     if st.button("Login"):
-        payload = {"username": username, "password": password}
-        # Use OAuth2PasswordRequestForm format
         data = {"username": username, "password": password}
-        response = requests.post(f"{API_BASE_URL}/auth/login", data=data)
-        if response.status_code == 200:
-            token = response.json().get("access_token")
+        response = api._post("auth/login", data)  # Use centralized API client
+        if response:
+            token = response.get("access_token")
             st.session_state["token"] = token
             st.success("Login successful!")
             st.experimental_rerun()

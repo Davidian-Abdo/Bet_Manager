@@ -17,5 +17,9 @@ def show():
     st.text_input("Password", type="password")
 
     if st.button("Save Settings"):
-        # You can store settings in st.session_state or a local JSON/config file
+        # Store settings in st.session_state or local config
+        st.session_state["theme"] = theme
+        st.session_state["notifications"] = notifications
+        st.session_state["language"] = language
+        st.session_state["api_url"] = api_url
         st.success("Settings saved successfully!")
