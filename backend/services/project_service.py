@@ -1,7 +1,7 @@
 # backend/services/project_service.py
 from sqlalchemy.orm import Session
-from models.project import Project
-from schemas.project import ProjectCreate, ProjectUpdate
+from backend.models.project import Project
+from backend.schemas.project import ProjectCreate, ProjectUpdate
 from fastapi import HTTPException
 from datetime import datetime
 
@@ -20,6 +20,17 @@ def create_project(db: Session, project_data: ProjectCreate):
     db.refresh(project)
     return project
 
+def get_project(db: Session, project_id: int):
+    """
+    Retrieve a single project by ID.
+    """
+    return db.query(Project).filter(Project.id == project_id).first()
+
+def get_projects(db: Session, skip: int = 0, limit: int = 100):
+    """
+    Retrieve a list of projects with optional pagination.
+    """
+    return db.query(Project).offset(skip).limit(limit).all()
 
 def update_project(db: Session, project_id: int, data: ProjectUpdate):
     project = db.query(Project).get(project_id)
@@ -45,3 +56,11 @@ def calculate_progress(db: Session, project_id: int):
     db.commit()
     db.refresh(project)
     return project.progress
+
+def delete_project(db: Session, project_id: int) -> bool:
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        return False
+    db.delete(project)
+    db.commit()
+    return True

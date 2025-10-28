@@ -1,9 +1,9 @@
 # backend/api/endpoints/projects.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from schemas.project import ProjectCreate, ProjectOut, ProjectUpdate
-from services.project_service import create_project, get_project, get_projects, update_project, delete_project
-from api.dependencies import get_db_session
+from backend.schemas.project import ProjectCreate, ProjectOut, ProjectUpdate
+from backend.services.project_service import create_project, get_project, get_projects, update_project, delete_project
+from backend.api.dependencies import get_db_session
 
 router = APIRouter()
 

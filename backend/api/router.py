@@ -1,6 +1,6 @@
 # backend/api/router.py
 from fastapi import APIRouter
-from api.endpoints import auth, users, projects, documents, analytics, tasks
+from backend.api.endpoints import auth, users, projects, documents, analytics, tasks
 
 api_router = APIRouter()
 

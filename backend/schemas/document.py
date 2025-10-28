@@ -13,7 +13,14 @@ class DocumentBase(BaseModel):
 class DocumentCreate(DocumentBase):
     uploaded_by: int
 
+class DocumentRead(DocumentBase):
+    id: int
+    created_at: datetime
+    updated_at: Optional[datetime]
 
+    class Config:
+        from_attributes = True
+        
 class DocumentUpdate(BaseModel):
     name: Optional[str]
     version: Optional[int]

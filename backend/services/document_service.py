@@ -1,7 +1,7 @@
 # backend/services/document_service.py
 from sqlalchemy.orm import Session
-from models.document import Document
-from schemas.document import DocumentCreate, DocumentUpdate
+from backend.models.document import Document
+from backend.schemas.document import DocumentCreate, DocumentUpdate
 from fastapi import HTTPException
 from datetime import datetime
 

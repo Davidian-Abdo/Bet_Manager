@@ -1,10 +1,10 @@
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from api.router import api_router
-from websocket.manager import manager
-from websocket.dwg_sync import handle_dwg_message
-from websocket.notifications import send_notification
-from core.logging_config import logger
+from backend.api.router import api_router
+from backend.websocket.manager import manager
+from backend.websocket.dwg_sync import handle_dwg_message
+from backend.websocket.notifications import send_notification
+from backend.core.logging_config import logger
 
 app = FastAPI(
     title="BET Manager API",

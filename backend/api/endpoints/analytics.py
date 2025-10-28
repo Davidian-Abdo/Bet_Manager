@@ -1,8 +1,8 @@
 # backend/api/endpoints/analytics.py
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from services.analytics_service import get_project_kpis, get_team_performance
-from api.dependencies import get_db_session
+from backend.services.analytics_service import get_project_kpis, get_team_performance
+from backend.api.dependencies import get_db_session
 
 router = APIRouter()
 

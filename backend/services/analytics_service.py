@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from models.project import Project
-from models.user import User
-from utils.calc_utils import calculate_phase_progress
+from backend.models.project import Project
+from backend.models.user import User
+from backend.utils.calc_utils import calculate_phase_progress
 
 def get_project_kpis(db: Session, project_id: int):
     project = db.query(Project).filter(Project.id == project_id).first()
@@ -23,7 +23,7 @@ def get_project_kpis(db: Session, project_id: int):
         "current_margin": round(current_margin, 2),
     }
 
-def get_team_productivity(db: Session):
+def get_team_performance(db: Session):
     users = db.query(User).all()
     productivity = []
     for u in users:

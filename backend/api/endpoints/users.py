@@ -1,9 +1,9 @@
 # backend/api/endpoints/users.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from schemas.user import UserCreate, UserOut, UserUpdate
-from services.user_service import create_user, get_user, update_user, delete_user
-from api.dependencies import get_db_session
+from backend.schemas.user import UserCreate, UserOut, UserUpdate
+from backend.services.user_service import create_user, get_user, update_user, delete_user
+from backend.api.dependencies import get_db_session
 
 router = APIRouter()
 

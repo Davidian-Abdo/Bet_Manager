@@ -1,9 +1,9 @@
 # backend/api/endpoints/tasks.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from services.task_service import create_task, get_tasks, get_task, update_task, delete_task
-from schemas.tasks import TaskCreate, TaskUpdate, TaskOut
-from api.dependencies import get_db_session
+from backend.services.task_service import create_task, get_tasks, get_task, update_task, delete_task
+from backend.schemas.task import TaskCreate, TaskUpdate, TaskOut
+from backend.api.dependencies import get_db_session
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
