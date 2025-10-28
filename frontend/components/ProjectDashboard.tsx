@@ -1,63 +1,48 @@
-// frontend/components/ProjectDashboard.tsx
 import React, { useEffect, useState } from "react";
-import { Streamlit, withStreamlitConnection } from "streamlit-component-lib";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import axios from "axios";
 
-// Define the project type
-interface Project {
-  id: number;
-  name: string;
-  progress: number;
-  budgetUsed: number;
+interface KPIData {
+  project_name: string;
+  average_progress: number;
+  budget_total: number;
+  budget_spent: number;
+  current_margin: number;
 }
 
-// Functional component
-const ProjectDashboard: React.FC = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
+interface ProjectDashboardProps {
+  projectId: number;
+  token?: string;
+}
+
+const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ projectId, token }) => {
+  const [kpis, setKpis] = useState<KPIData | null>(null);
 
   useEffect(() => {
-    // Fetch projects from backend API
-    fetch("http://localhost:8000/api/projects")
-      .then((res) => {
-        if (!res.ok) throw new Error("Network response was not ok");
-        return res.json();
-      })
-      .then((data: Project[]) => {
-        setProjects(data);
-        // Adjust Streamlit iframe height dynamically
-        Streamlit.setFrameHeight(400 + data.length * 50);
-      })
-      .catch((error) => {
-        console.error("Error fetching projects:", error);
-      });
-  }, []);
+    const fetchKpis = async () => {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/analytics/project/${projectId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setKpis(res.data);
+      } catch (error) {
+        console.error("Failed to fetch KPIs:", error);
+      }
+    };
+
+    fetchKpis();
+  }, [projectId, token]);
+
+  if (!kpis) return <p>Loading project KPIs...</p>;
 
   return (
-    <div style={{ padding: "1rem", fontFamily: "Inter, sans-serif" }}>
-      <h3>📊 Suivi des Projets</h3>
-      {projects.length === 0 ? (
-        <p>Aucun projet disponible</p>
-      ) : (
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={projects}>
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="progress" fill="#2563eb" name="Avancement (%)" />
-            <Bar dataKey="budgetUsed" fill="#10b981" name="Budget utilisé (MAD)" />
-          </BarChart>
-        </ResponsiveContainer>
-      )}
+    <div className="grid grid-cols-2 gap-4 p-4 bg-white shadow-md rounded-2xl">
+      <h2 className="col-span-2 text-xl font-semibold">{kpis.project_name}</h2>
+      <p>Average Progress: {kpis.average_progress.toFixed(1)}%</p>
+      <p>Budget Total: ${kpis.budget_total.toLocaleString()}</p>
+      <p>Budget Spent: ${kpis.budget_spent.toLocaleString()}</p>
+      <p>Margin: {kpis.current_margin}%</p>
     </div>
   );
 };
 
-// Export with Streamlit connection wrapper
-export default withStreamlitConnection(ProjectDashboard);
+export default ProjectDashboard;

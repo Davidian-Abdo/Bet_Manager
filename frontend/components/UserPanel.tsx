@@ -1,43 +1,47 @@
-// frontend/components/UserPanel.tsx
 import React, { useEffect, useState } from "react";
-import { Streamlit, withStreamlitConnection } from "streamlit-component-lib";
+import axios from "axios";
 
-interface User {
-  name: string;
-  role: string;
-  active: boolean;
+interface UserPerformance {
+  user_name: string;
+  avg_task_completion: number;
+  on_time_delivery: number;
+  quality_score: number;
 }
 
-const UserPanel = () => {
-  const [team, setTeam] = useState<User[]>([]);
+interface UserPanelProps {
+  token?: string;
+}
+
+const UserPanel: React.FC<UserPanelProps> = ({ token }) => {
+  const [users, setUsers] = useState<UserPerformance[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/team/availability")
-      .then((res) => res.json())
-      .then((data) => {
-        setTeam(data);
-        Streamlit.setFrameHeight(300);
-      });
-  }, []);
+    const fetchPerformance = async () => {
+      try {
+        const res = await axios.get("http://127.0.0.1:8000/analytics/team", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUsers(res.data);
+      } catch (error) {
+        console.error("Failed to load team performance:", error);
+      }
+    };
+
+    fetchPerformance();
+  }, [token]);
 
   return (
-    <div style={{ padding: "1rem" }}>
-      <h3>👥 Équipe Active</h3>
-      {team.map((u) => (
-        <div
-          key={u.name}
-          style={{
-            padding: "0.5rem",
-            backgroundColor: u.active ? "#dcfce7" : "#fee2e2",
-            borderRadius: "8px",
-            marginBottom: "4px",
-          }}
-        >
-          <strong>{u.name}</strong> — {u.role}
-        </div>
-      ))}
+    <div className="p-4 bg-white rounded-2xl shadow-md">
+      <h3 className="text-lg font-semibold mb-3">Team Performance</h3>
+      <ul>
+        {users.map((u) => (
+          <li key={u.user_name} className="border-b py-2 text-sm">
+            <span className="font-medium">{u.user_name}</span> — {u.avg_task_completion}% completion, {u.on_time_delivery}% on time, Quality: {u.quality_score}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
 
-export default withStreamlitConnection(UserPanel);
+export default UserPanel;

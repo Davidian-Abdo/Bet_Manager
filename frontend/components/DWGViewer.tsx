@@ -1,55 +1,36 @@
-// frontend/components/DWGViewer.tsx
-import React, { useEffect, useRef, useState } from "react";
-import { Streamlit, withStreamlitConnection } from "streamlit-component-lib";
-import { useWebSocket } from "../hooks/useWebSocket";
+import React, { useEffect, useRef } from "react";
 
 interface DWGViewerProps {
-  projectId: number;
-  userId: number;
+  fileUrl: string;
 }
 
-const DWGViewer = ({ projectId, userId }: DWGViewerProps) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const { socket, sendMessage } = useWebSocket(`ws://localhost:8000/ws/dwg/${projectId}`);
-  const [cursor, setCursor] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+const DWGViewer: React.FC<DWGViewerProps> = ({ fileUrl }) => {
+  const viewerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
+    if (!fileUrl) return;
 
-    if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    socket.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "draw") {
-        const { x, y } = data.payload;
-        ctx?.fillRect(x, y, 2, 2);
+    // Example: using Autodesk Viewer or third-party DWG renderer
+    const initViewer = async () => {
+      try {
+        console.log("Loading DWG file:", fileUrl);
+        // Here you can integrate your DWG renderer library
+      } catch (error) {
+        console.error("Failed to load DWG:", error);
       }
     };
-  }, [socket]);
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    setCursor({ x, y });
-    sendMessage({ type: "cursor", payload: { x, y, userId } });
-  };
+    initViewer();
+  }, [fileUrl]);
 
   return (
-    <div>
-      <h4>🧰 Collaboration DWG - Projet #{projectId}</h4>
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={600}
-        style={{ border: "1px solid #ccc", cursor: "crosshair" }}
-        onMouseMove={handleMouseMove}
-      />
-      <p style={{ color: "gray" }}>Position: {cursor.x}, {cursor.y}</p>
+    <div
+      ref={viewerRef}
+      className="w-full h-full bg-gray-100 rounded-2xl shadow-sm"
+    >
+      <p className="text-center text-gray-500 mt-8">DWG Viewer Placeholder</p>
     </div>
   );
 };
 
-export default withStreamlitConnection(DWGViewer)
+export default DWGViewer;
