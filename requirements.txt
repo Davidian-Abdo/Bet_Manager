@@ -1,4 +1,5 @@
 # Backend dependencies
+
 fastapi==0.119.0
 uvicorn[standard]==0.37.0
 SQLAlchemy>=2.0.30,<2.1.0
