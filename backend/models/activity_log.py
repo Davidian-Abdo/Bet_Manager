@@ -1,7 +1,7 @@
 # backend/models/activity_log.py
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON
 from sqlalchemy.sql import func
-from db.base import Base
+from backend.db.base import Base
 
 
 class ActivityLog(Base):

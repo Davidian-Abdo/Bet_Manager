@@ -1,18 +1,23 @@
-# backend/db/session.py
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from core.config import get_settings
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from backend.core.config import settings
 
-settings = get_settings()
-
-DATABASE_URL = (
-    f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}"
+# PostgreSQL connection URL
+SQLALCHEMY_DATABASE_URL = (
+    f"postgresql://{settings.DB_USER}:{settings.DB_PASSWORD}"
     f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
 )
 
-engine = create_async_engine(DATABASE_URL, echo=settings.DEBUG, future=True)
-SessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+# Engine: manages the DB connection
+engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
 
+# Session: used in dependencies
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-async def get_db() -> AsyncSession:
-    async with SessionLocal() as session:
-        yield session
+# Dependency for FastAPI routes
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

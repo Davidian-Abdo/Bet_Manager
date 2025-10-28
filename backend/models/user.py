@@ -1,7 +1,7 @@
 # backend/models/user.py
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, Enum
 from sqlalchemy.sql import func
-from db.base import Base
+from backend.db.base import Base
 import enum
 
 class UserRole(str, enum.Enum):

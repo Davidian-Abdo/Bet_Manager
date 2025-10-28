@@ -1,7 +1,7 @@
 # backend/models/project.py
 from sqlalchemy import Column, Integer, String, Float, ForeignKey, Date, Enum, JSON
 from sqlalchemy.orm import relationship
-from db.base import Base
+from backend.db.base import Base
 import enum
 
 
