@@ -1,7 +1,7 @@
 # frontend/pages/projects.py
 import streamlit as st
 import streamlit.components.v1 as components
-from frontend.utils import api_client  # ✅ use your shared API client (not a separate class instance)
+from utils import api_client  # ✅ use your shared API client (not a separate class instance)
 
 def show():
     st.title("🏗️ Projets")
