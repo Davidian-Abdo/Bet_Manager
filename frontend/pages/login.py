@@ -3,7 +3,7 @@ from frontend.utils.api_client import APIClient
 
 api = APIClient(base_url="http://localhost:8000/api")
 
-def show_login():
+def show():
     st.title("BET Manager Login")
 
     username = st.text_input("Username")
