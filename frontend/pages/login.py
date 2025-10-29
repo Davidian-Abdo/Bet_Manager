@@ -1,5 +1,5 @@
 import streamlit as st
-from frontend.utils import api_client
+from utils import api_client
 
 def show():
     st.title("🔐 BET Manager Login")
