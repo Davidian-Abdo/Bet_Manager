@@ -12,16 +12,17 @@ interface KPIData {
 interface ProjectDashboardProps {
   projectId: number;
   token?: string;
+  backendUrl: string; // <- added backend URL prop
 }
 
-const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ projectId, token }) => {
+const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ projectId, token, backendUrl }) => {
   const [kpis, setKpis] = useState<KPIData | null>(null);
 
   useEffect(() => {
     const fetchKpis = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/analytics/project/${projectId}`, {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await axios.get(`${backendUrl}/analytics/project/${projectId}`, {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         setKpis(res.data);
       } catch (error) {
@@ -30,7 +31,7 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ projectId, token })
     };
 
     fetchKpis();
-  }, [projectId, token]);
+  }, [projectId, token, backendUrl]); // include backendUrl as dependency
 
   if (!kpis) return <p>Loading project KPIs...</p>;
 
@@ -45,4 +46,4 @@ const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ projectId, token })
   );
 };
 
-export default ProjectDashboard;
+export default ProjectDashboard
