@@ -1,12 +1,12 @@
 import streamlit as st
-from frontend.pages import dashboard, projects, documents, analytics, settings, login
+from pages import dashboard, projects, documents, analytics, settings, login
 
 # Configure page
 st.set_page_config(page_title="BET Manager", layout="wide")
 
 # Check authentication
 if "token" not in st.session_state:
-    login.show_login()
+    login.show()
 else:
     st.sidebar.title("Navigation")
     page = st.sidebar.radio(
