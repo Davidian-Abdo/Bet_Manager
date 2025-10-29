@@ -1,6 +1,6 @@
 # frontend/pages/analytics.py
 import streamlit as st
-from frontend.utils.api_client import get
+from utils.api_client import get
 import streamlit.components.v1 as components
 
 def show():
