@@ -8,7 +8,10 @@ from typing import Any, Dict, Optional, List
 # ==============================
 
 # Allow override via environment variable
-BACKEND_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+BACKEND_URL = (
+    st.secrets.get("BACKEND_UR", None)
+    or os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+)
 
 # Token management using Streamlit session state
 def get_headers() -> Dict[str, str]:
