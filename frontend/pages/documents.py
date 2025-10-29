@@ -1,6 +1,6 @@
 # frontend/pages/documents.py
 import streamlit as st
-from frontend.utils.api_client import get, post, put, delete  # use centralized API client
+from utils.api_client import get, post, put, delete  # use centralized API client
 
 def show():
     st.title("📄 Documents")
