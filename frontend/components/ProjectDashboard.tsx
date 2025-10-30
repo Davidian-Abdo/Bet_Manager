@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import React from "react";
 
 interface KPIData {
   project_name: string;
@@ -10,37 +9,19 @@ interface KPIData {
 }
 
 interface ProjectDashboardProps {
-  projectId: number;
-  token?: string;
+  data: KPIData | null; // Receive KPIs from Streamlit
 }
 
-const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ projectId, token }) => {
-  const [kpis, setKpis] = useState<KPIData | null>(null);
-
-  useEffect(() => {
-    const fetchKpis = async () => {
-      try {
-        const res = await axios.get(`http://127.0.0.1:8000/analytics/project/${projectId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setKpis(res.data);
-      } catch (error) {
-        console.error("Failed to fetch KPIs:", error);
-      }
-    };
-
-    fetchKpis();
-  }, [projectId, token]);
-
-  if (!kpis) return <p>Loading project KPIs...</p>;
+const ProjectDashboard: React.FC<ProjectDashboardProps> = ({ data }) => {
+  if (!data) return <p>Loading project KPIs...</p>;
 
   return (
     <div className="grid grid-cols-2 gap-4 p-4 bg-white shadow-md rounded-2xl">
-      <h2 className="col-span-2 text-xl font-semibold">{kpis.project_name}</h2>
-      <p>Average Progress: {kpis.average_progress.toFixed(1)}%</p>
-      <p>Budget Total: ${kpis.budget_total.toLocaleString()}</p>
-      <p>Budget Spent: ${kpis.budget_spent.toLocaleString()}</p>
-      <p>Margin: {kpis.current_margin}%</p>
+      <h2 className="col-span-2 text-xl font-semibold">{data.project_name}</h2>
+      <p>Average Progress: {data.average_progress.toFixed(1)}%</p>
+      <p>Budget Total: ${data.budget_total.toLocaleString()}</p>
+      <p>Budget Spent: ${data.budget_spent.toLocaleString()}</p>
+      <p>Margin: {data.current_margin}%</p>
     </div>
   );
 };
