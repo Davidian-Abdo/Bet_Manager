@@ -1,15 +1,25 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 from backend.core.config import settings
 
-# PostgreSQL connection URL
-SQLALCHEMY_DATABASE_URL = (
-    f"postgresql://{settings.DB_USER}:{settings.DB_PASSWORD}"
-    f"@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
-)
+# ✅ USE THE FIXED TCP CONNECTION STRING FROM SETTINGS
+# This uses postgresql+psycopg2:// which forces TCP on Windows
+SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
 
-# Engine: manages the DB connection
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
+# ✅ CREATE ENGINE WITH TCP CONNECTION ARGUMENTS
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    poolclass=NullPool,
+    # ✅ FORCE TCP CONNECTION ON WINDOWS
+    connect_args={
+        'host': settings.DB_HOST,
+        'port': settings.DB_PORT,
+        'dbname': settings.DB_NAME,
+        'user': settings.DB_USER,
+        'password': settings.DB_PASSWORD
+    }
+)
 
 # Session: used in dependencies
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

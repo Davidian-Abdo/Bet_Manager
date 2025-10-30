@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 class UserBase(BaseModel):
-    name: str
+    full_name: str
     email: EmailStr
     role: str  # "engineer", "designer", "admin"
 
@@ -15,7 +15,7 @@ class UserCreate(UserBase):
 
 
 class UserUpdate(BaseModel):
-    name: Optional[str]
+    full_name: Optional[str]
     role: Optional[str]
     password: Optional[str]
 

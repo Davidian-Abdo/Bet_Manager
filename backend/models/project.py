@@ -27,4 +27,5 @@ class Project(Base):
     phases = Column(JSON, default=list)  # Simplified for now
     team_id = Column(Integer, ForeignKey("users.id"), nullable=True)
 
-    team_lead = relationship("User")
+    team_lead = relationship("User", back_populates="projects")
+    tasks = relationship("Task", back_populates="project")

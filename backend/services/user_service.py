@@ -6,27 +6,63 @@ from fastapi import HTTPException
 from datetime import datetime, timedelta
 from typing import Optional
 from jose import jwt  # make sure you have `python-jose` installed
-from backend.core.config import get_settings
+from backend.core.config import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 def create_user(db: Session, user_data: UserCreate):
-    if db.query(User).filter(User.email == user_data.email).first():
-        raise HTTPException(status_code=400, detail="Email déjà utilisé")
+    try:
+        logger.info(f"Attempting to create user: {user_data.email}")
+        
+        # Check if user already exists
+        existing_user = db.query(User).filter(User.email == user_data.email).first()
+        if existing_user:
+            logger.warning(f"Email already exists: {user_data.email}")
+            raise HTTPException(status_code=400, detail="Email déjà utilisé")
 
-    user = User(
-        name=user_data.name,
-        email=user_data.email,
-        password_hash=hash_password(user_data.password),
-        role=user_data.role
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
-
+        logger.info(f"Password length: {len(user_data.password)} characters")
+        logger.info(f"Password bytes length: {len(user_data.password.encode('utf-8'))} bytes")
+        
+        # DEBUG: Check password before hashing
+        if len(user_data.password.encode('utf-8')) > 72:
+            logger.warning(f"Password exceeds 72 bytes, will be truncated by hash_password function")
+        
+        logger.info("Hashing password...")
+        hashed_password = hash_password(user_data.password)
+        logger.info("Password hashed successfully")
+        
+        logger.info("Creating user object...")
+        user = User(
+            full_name=user_data.full_name,
+            email=user_data.email,
+            hashed_password=hashed_password,
+            role=user_data.role
+        )
+        
+        logger.info("Adding user to database...")
+        db.add(user)
+        
+        logger.info("Committing transaction...")
+        db.commit()
+        
+        logger.info("Refreshing user...")
+        db.refresh(user)
+        
+        logger.info(f"User created successfully: {user.email}")
+        return user
+        
+    except Exception as e:
+        logger.error(f"Error creating user: {str(e)}")
+        logger.error(f"Error type: {type(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 def authenticate_user(db: Session, email: str, password: str):
     user = db.query(User).filter(User.email == email).first()
-    if not user or not verify_password(password, user.password_hash):
+    if not user or not verify_password(password, user.hashed_password):
         return None
     return user
 
@@ -41,8 +77,6 @@ def update_user(db: Session, user_id: int, data: UserUpdate):
     db.commit()
     db.refresh(user)
     return user
-
-settings = get_settings()
 
 
 def create_access_token(
@@ -107,4 +141,4 @@ def delete_user(db: Session, user_id: int) -> bool:
         return False
     db.delete(user)
     db.commit()
-    return Tru
+    return True

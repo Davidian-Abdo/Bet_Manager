@@ -5,7 +5,8 @@ from backend.websocket.manager import manager
 from backend.websocket.dwg_sync import handle_dwg_message
 from backend.websocket.notifications import send_notification
 from backend.core.logging_config import logger
-
+import logging
+logging.basicConfig(level=logging.DEBUG)
 app = FastAPI(
     title="BET Manager API",
     description="Backend API for Bureaux d'Études Marocains en Génie Civil",

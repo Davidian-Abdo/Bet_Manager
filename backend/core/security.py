@@ -1,14 +1,21 @@
+
 # backend/core/security.py
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-from backend.core.config import get_settings
+from backend.core.config import settings
 
-settings = get_settings()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str) -> str:
+    """Hash a password with proper length handling for bcrypt"""
+    # Bcrypt has a 72-byte limit. Handle this properly.
+    if len(password) > 72:
+        # If password is too long, truncate it
+        password = password[:72]
+        print(f"⚠️  Password truncated to 72 characters for hashing")
+    
     return pwd_context.hash(password)
 
 

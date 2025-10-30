@@ -1,6 +1,6 @@
-# backend/core/config.py
 from pydantic_settings import BaseSettings
 from functools import lru_cache
+from typing import Optional, List
 
 
 class Settings(BaseSettings):
@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     DB_PORT: str = "5432"
     DB_NAME: str
 
+    # --- Computed Database URL (ADD THIS) ---
+    @property
+    def DATABASE_URL(self) -> str:
+        return f"postgresql+psycopg2://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+
     # --- Security ---
     JWT_SECRET_KEY: str
     JWT_ALGORITHM: str = "HS256"
@@ -30,11 +35,18 @@ class Settings(BaseSettings):
     # --- Realtime / Redis ---
     REDIS_URL: str = "redis://localhost:6379"
 
+     # CORS Configuration - ADD YOUR NGROK URL
+    BACKEND_CORS_ORIGINS: List[str] = [
+        "http://localhost:8501",           # Streamlit local
+        "http://127.0.0.1:8501",           # Streamlit local alternative  
+        "https://camden-strangulative-freezingly.ngrok-free.dev",  # Your Ngrok URL
+        # Add your Streamlit cloud URL when you deploy
+    ]
+    
     class Config:
         env_file = ".env"
+        case_sensitive = True  # Add this for consistency
 
 
-@lru_cache()
-def get_settings():
-    return Settings()
-settings= get_settings()
+# Simplify the settings instance (REMOVE LRU_CACHE for migrations)
+settings = Settings()
