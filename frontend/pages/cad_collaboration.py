@@ -2,6 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 import os
 import json
+from utils.api_client import get_backend_url
 
 def show():
     st.title("🖊️ Collaboration CAD en Temps Réel")
@@ -26,13 +27,12 @@ def show():
         st.error("""
         ❌ Composants React non trouvés. 
         
-        **Pour construire les composants React:**
-        ```bash
-        cd frontend\\react-components
-        npm install
-        npm run build
-        ```
+        **Solution:** Les composants React doivent être construits avant le déploiement.
+        Contactez l'administrateur pour régler ce problème.
         """)
+        
+        # Fallback: Show a simplified CAD interface
+        show_fallback_cad_interface(project_id, user_name, user_role)
         return
     
     # Check if build was successful
@@ -40,57 +40,97 @@ def show():
     static_path = os.path.join(react_build_path, "static")
     
     if not os.path.exists(index_path) or not os.path.exists(static_path):
-        st.error("""
-        ❌ Build React incomplet.
-        
-        Le dossier build existe mais les fichiers nécessaires sont manquants.
-        Essayez de reconstruire:
-        ```bash
-        cd frontend\\react-components
-        npm run build
-        ```
-        """)
+        st.warning("Build React incomplet. Affichage de l'interface de secours...")
+        show_fallback_cad_interface(project_id, user_name, user_role)
         return
     
-    # Read the built React app
+    # Load and embed React app
     try:
         with open(index_path, "r", encoding="utf-8") as f:
             html_content = f.read()
+        
+        # Prepare configuration
+        backend_url = get_backend_url()
+        config = {
+            "projectId": project_id,
+            "token": st.session_state.token,
+            "backendUrl": backend_url,
+            "userRole": user_role,
+            "userName": user_name
+        }
+        
+        # Fix asset paths for Streamlit embedding
+        html_content = html_content.replace('href="/static/', 'href="./static/')
+        html_content = html_content.replace('src="/static/', 'src="./static/')
+        
+        # Inject configuration
+        script_tag = f"""
+        <script>
+            window.STREAMLIT_CONFIG = {json.dumps(config)};
+        </script>
+        """
+        html_content = html_content.replace("</head>", f"{script_tag}</head>")
+        
+        # Success message
+        st.success("✅ Composants React chargés avec succès!")
+        
+        # Embed React app
+        components.html(html_content, height=700, scrolling=False)
+        
     except Exception as e:
-        st.error(f"Erreur lors de la lecture du fichier React: {e}")
-        return
+        st.error(f"Erreur lors du chargement des composants React: {e}")
+        show_fallback_cad_interface(project_id, user_name, user_role)
+
+def show_fallback_cad_interface(project_id: int, user_name: str, user_role: str):
+    """Fallback CAD interface when React components aren't available"""
+    st.warning("🔧 Interface CAD de secours activée")
     
-    # Prepare configuration
-    backend_url = st.secrets.get("BACKEND_URL", "http://localhost:8000")
-    config = {
-        "projectId": project_id,
-        "token": st.session_state.token,
-        "backendUrl": backend_url,
-        "userRole": user_role,
-        "userName": user_name
-    }
+    st.subheader("Contrôle d'Accès")
+    col1, col2 = st.columns(2)
     
-    # Fix asset paths for Streamlit embedding
-    html_content = html_content.replace('href="/static/', 'href="./static/')
-    html_content = html_content.replace('src="/static/', 'src="./static/')
+    with col1:
+        st.info(f"**👤 Utilisateur:** {user_name}")
+        st.info(f"**🎯 Rôle:** {user_role}")
     
-    # Inject configuration
-    script_tag = f"""
-    <script>
-        window.STREAMLIT_CONFIG = {json.dumps(config)};
-    </script>
-    """
-    html_content = html_content.replace("</head>", f"{script_tag}</head>")
+    with col2:
+        has_access = st.checkbox("Accès Édition", value=user_role in ['admin', 'engineer'])
+        if has_access:
+            st.success("🟢 Mode Édition Activé")
+        else:
+            st.info("🔴 Mode Observation")
     
-    # Success message
-    st.success("✅ Composants React chargés avec succès!")
+    st.subheader("Outils de Dessin")
+    col1, col2, col3 = st.columns(3)
     
-    # Display current configuration
-    with st.expander("🔧 Configuration Actuelle"):
-        st.json(config)
+    with col1:
+        if st.button("✏️ Ligne", disabled=not has_access):
+            st.session_state.last_action = "Ligne ajoutée"
     
-    # Embed React app
-    components.html(html_content, height=700, scrolling=False)
+    with col2:
+        if st.button("⭕ Cercle", disabled=not has_access):
+            st.session_state.last_action = "Cercle ajouté"
+    
+    with col3:
+        if st.button("⬛ Rectangle", disabled=not has_access):
+            st.session_state.last_action = "Rectangle ajouté"
+    
+    # Drawing area simulation
+    st.subheader("Zone de Dessin")
+    st.markdown("""
+    <div style='border: 2px solid #ccc; height: 400px; background: #f8f9fa; 
+                display: flex; align-items: center; justify-content: center; 
+                border-radius: 8px; margin: 10px 0;'>
+        <div style='text-align: center; color: #666;'>
+            <h3>🖊️ Zone de Dessin CAD</h3>
+            <p>Interface de dessin interactive</p>
+            <p><em>Composants React requis pour les fonctionnalités avancées</em></p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Last action
+    if 'last_action' in st.session_state:
+        st.info(f"**Dernière action:** {st.session_state.last_action}")
 
 if __name__ == "__main__":
     show()
