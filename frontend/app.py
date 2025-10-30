@@ -1,7 +1,7 @@
-# frontend/app.py
+
 import streamlit as st
-import requests
-from pages import dashboard, projects, documents, analytics, settings, login
+from pages import dashboard, projects, documents, analytics, settings, login, cad_collaboration
+from utils.api_client import logout  # Import from your existing api_client
 
 # Configure page
 st.set_page_config(page_title="BET Manager", layout="wide")
@@ -9,12 +9,12 @@ st.set_page_config(page_title="BET Manager", layout="wide")
 def validate_token(token: str) -> bool:
     """Validate if the token is still valid with the backend"""
     try:
-        backend_url = st.secrets.get("BACKEND_URL", "http://localhost:8000")
-        headers = {"Authorization": f"Bearer {token}"}
+        from utils.api_client import BACKEND_URL, get_headers
+        import requests
         
         response = requests.get(
-            f"{backend_url}/api/users/me",
-            headers=headers,
+            f"{BACKEND_URL}/api/users/me",
+            headers=get_headers(),
             timeout=5
         )
         
@@ -27,9 +27,6 @@ def validate_token(token: str) -> bool:
             st.session_state.user = None
             return False
             
-    except requests.exceptions.RequestException:
-        # Backend connection failed - but user might still be "logged in" for this session
-        return True  # Allow access if we can't validate (temporary)
     except Exception as e:
         st.error(f"Authentication error: {e}")
         return False
@@ -37,8 +34,9 @@ def validate_token(token: str) -> bool:
 def check_backend_connection() -> bool:
     """Check if backend is reachable"""
     try:
-        backend_url = st.secrets.get("BACKEND_URL", "http://localhost:8000")
-        response = requests.get(f"{backend_url}/docs", timeout=5)
+        from utils.api_client import BACKEND_URL
+        import requests
+        response = requests.get(f"{BACKEND_URL}/docs", timeout=5)
         return response.status_code == 200
     except:
         return False
@@ -55,6 +53,8 @@ def main():
     # Initialize session state
     if "user" not in st.session_state:
         st.session_state.user = None
+    if "token" not in st.session_state:
+        st.session_state.token = None
     
     # Show connection status
     show_connection_status()
@@ -76,23 +76,27 @@ def main():
         login.show()
     else:
         st.sidebar.title("Navigation")
-        st.sidebar.success(f"✅ Logged in as: {st.session_state.user.get('name', 'User') if st.session_state.user else 'User'}")
         
-        # Logout button
-        if st.sidebar.button("Logout"):
-            st.session_state.token = None
-            st.session_state.user = None
+        # User info and logout
+        if st.session_state.user:
+            st.sidebar.write(f"👤 **{st.session_state.user.get('name', 'User')}**")
+            st.sidebar.write(f"🎯 Role: {st.session_state.user.get('role', 'User')}")
+        
+        if st.sidebar.button("🚪 Logout"):
+            logout()
             st.rerun()
         
         page = st.sidebar.radio(
             "Go to",
-            ("Dashboard", "Projects", "Documents", "Analytics", "Settings")
+            ("Dashboard", "Projects", "CAD Collaboration", "Documents", "Analytics", "Settings")
         )
 
         if page == "Dashboard":
             dashboard.show()
         elif page == "Projects":
             projects.show()
+        elif page == "CAD Collaboration":
+            cad_collaboration.show()
         elif page == "Documents":
             documents.show()
         elif page == "Analytics":

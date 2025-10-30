@@ -1,24 +1,22 @@
 {
   "name": "bet-manager-frontend",
   "version": "1.0.0",
-  "private": true,
+  "description": "Streamlit frontend for BET Manager",
   "scripts": {
-    "start": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "streamlit run app.py",
+    "start": "streamlit run app.py",
+    "build-react": "cd react-components && npm install && npm run build"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "axios": "^1.5.0",
-    "recharts": "^2.8.0",
-    "socket.io-client": "^4.7.2",
-    "heroicons-react": "^1.0.6",
-    "lucide-react": "^0.230.0"
+    "streamlit": "^1.28.0"
   },
-  "devDependencies": {
-    "typescript": "^5.2.2",
-    "vite": "^4.5.0",
-    "@vitejs/plugin-react": "^3.2.0"
-  }
+  "devDependencies": {},
+  "keywords": [
+    "streamlit",
+    "engineering",
+    "cad",
+    "collaboration"
+  ],
+  "author": "BET Manager Team",
+  "license": "MIT"
 }

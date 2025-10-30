@@ -1,12 +1,14 @@
-# frontend/pages/login.py
 import streamlit as st
-import requests
+from utils.api_client import login  # Use your existing api_client
 
 def show():
     st.title("🔐 Login to BET Manager")
     
-    # Check backend connection first
-    backend_url = st.secrets.get("BACKEND_URL", "http://localhost:8000")
+    # If already logged in, redirect to main app
+    if "token" in st.session_state and st.session_state.token:
+        st.success("Already logged in! Redirecting...")
+        st.rerun()
+        return
     
     with st.container():
         col1, col2 = st.columns([2, 1])
@@ -22,38 +24,24 @@ def show():
                         st.error("Please enter both email and password")
                         return
                     
-                    # Attempt login
-                    try:
-                        response = requests.post(
-                            f"{backend_url}/api/auth/login",
-                            json={"email": email, "password": password},
-                            timeout=10
-                        )
-                        
-                        if response.status_code == 200:
-                            token_data = response.json()
-                            st.session_state.token = token_data["access_token"]
-                            st.success("Login successful! Redirecting...")
-                            st.rerun()
-                        else:
-                            st.error(f"Login failed: Invalid credentials or server error")
-                            
-                    except requests.exceptions.RequestException:
-                        st.error("❌ Cannot connect to backend service. Please check:")
-                        st.write(f"- Backend URL: `{backend_url}`")
-                        st.write("- Is the backend server running?")
-                        st.write("- Is ngrok tunnel active (if using ngrok)?")
-                    except Exception as e:
-                        st.error(f"Unexpected error: {e}")
+                    # Use your existing login function
+                    if login(email, password):
+                        st.success("Login successful! Redirecting...")
+                        st.rerun()
+                    else:
+                        st.error("Login failed. Check your credentials.")
         
         with col2:
             st.info("**Demo Credentials**")
             st.code("Email: admin@betmanager.com\nPassword: admin123")
             
             # Test connection button
+            from utils.api_client import BACKEND_URL
+            import requests
+            
             if st.button("Test Backend Connection"):
                 try:
-                    response = requests.get(f"{backend_url}/docs", timeout=5)
+                    response = requests.get(f"{BACKEND_URL}/docs", timeout=5)
                     if response.status_code == 200:
                         st.success("✅ Backend is reachable!")
                     else:
